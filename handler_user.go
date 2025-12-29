@@ -2,21 +2,25 @@ package main
 
 import (
 	"fmt"
+	"context"
 )
 
-func handlerLogin(s *state, cmd command) error {
-        if len(cmd.Args) == 0 {
-                return fmt.Errorf("no argument provided")
-        }
+func handlerUsers(s *state, cmd command) error {
+	ctx := context.Background()
 
-        username := cmd.Args[0]
+	users, err := s.db.GetUsers(ctx)
+	if err != nil {
+		return fmt.Errorf("could not reset table: %w", err)
+	}
 
-        err := s.cfg.SetUser(username)
-        if err != nil {
-                return fmt.Errorf("Could not change username: %w", err)
-        }
+	for _, user := range users {
+		if s.cfg.CurrentUserName == user.Name {
+			fmt.Printf("* %s (current)\n", user.Name)
+		} else {
+			fmt.Printf("* %s\n", user.Name)
+		}
+	}
 
-        fmt.Printf("Username set to %s\n", username)
 
-        return nil
+	return nil
 }
