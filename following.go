@@ -3,18 +3,12 @@ package main
 import (
 	"fmt"
 	"context"
+
+	"aggregator-go/internal/database"
 )
 
-func following(s *state, cmd command) error {
-	ctx := context.Background()
-
-	currentUserName := s.cfg.CurrentUserName
-	user, err := s.db.GetUser(ctx, currentUserName)
-	if err != nil {
-		return fmt.Errorf("could not get user: %w", err)
-	}
-
-	follows, err := s.db.GetFeedFollowsForUser(ctx, user.ID)
+func following(s *state, cmd command, user database.User) error {
+	follows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("could not retrieve follows for user: %w", err)
 	}

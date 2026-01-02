@@ -9,12 +9,10 @@ import (
 	"aggregator-go/internal/database"
 )
 
-func addFeed(s *state, cmd command) error {
+func addFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: %s <name> <url>", cmd.Name)
 	}
-
-	ctx := context.Background()
 
 	feedName := cmd.Args[0]
 	feedURL := cmd.Args[1]
@@ -23,13 +21,7 @@ func addFeed(s *state, cmd command) error {
 		return fmt.Errorf("no current user, please register or login first")
 	}
 
-	currentUserName := s.cfg.CurrentUserName
-	user, err := s.db.GetUser(ctx, currentUserName)
-	if err != nil {
-		return fmt.Errorf("could not get user: %w", err)
-	}
-
-	feed, err := s.db.CreateFeed(ctx, database.CreateFeedParams{
+	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
 		ID: uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
@@ -41,7 +33,7 @@ func addFeed(s *state, cmd command) error {
 		return fmt.Errorf("error creating feed: %w", err)
 	}
 
-	_, err = s.db.CreateFeedFollow(ctx, database.CreateFeedFollowParams{
+	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
 		ID: uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),

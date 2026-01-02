@@ -9,19 +9,13 @@ import (
 
 )
 
-func follow(s *state, cmd command) error {
+func follow(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 1  {
 		return fmt.Errorf("usage: %s <url>", cmd.Name)
 	}
 	ctx := context.Background()
 
 	url := cmd.Args[0]
-
-	currentUserName := s.cfg.CurrentUserName
-	user, err := s.db.GetUser(ctx, currentUserName)
-	if err != nil {
-		return fmt.Errorf("could not get user: %w", err)
-	}
 
 	feed, err := s.db.GetFeedURL(ctx, url)
 	if err != nil {
@@ -40,7 +34,7 @@ func follow(s *state, cmd command) error {
 	}
 
 	fmt.Printf("- Name: %s\n", follow.FeedName)
-	fmt.Printf("- Current user: %s\n", currentUserName)
+	fmt.Printf("- Current user: %s\n", s.cfg.CurrentUserName)
 
 	return nil
 }
